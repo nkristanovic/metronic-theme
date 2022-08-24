@@ -4,6 +4,7 @@ import * as Yup from 'yup'
 import classes from '../../../../../_metronic/assets/sass/errors.module.scss'
 import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import swal from 'sweetalert'
+import React from 'react'
 
 type Props = {
   className: string
@@ -76,8 +77,13 @@ const WorkItems: React.FC<Props> = ({className}) => {
   }
 
   const filteredItems = items.filter((events) => {
-    return events.client.toLowerCase().includes(value.toLowerCase()) || events.project.toLowerCase().includes(value.toLowerCase()) || events.date.toLowerCase().includes(value.toLowerCase())
-    || events.numberOfHours.toLowerCase().includes(value.toLowerCase()) || events.notice.toLowerCase().includes(value.toLowerCase())
+    return (
+      events.client.toLowerCase().includes(value.toLowerCase()) ||
+      events.project.toLowerCase().includes(value.toLowerCase()) ||
+      events.date.toLowerCase().includes(value.toLowerCase()) ||
+      events.numberOfHours.toLowerCase().includes(value.toLowerCase()) ||
+      events.notice.toLowerCase().includes(value.toLowerCase())
+    )
   })
 
   return (
