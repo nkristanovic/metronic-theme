@@ -57,7 +57,7 @@ const WorkItems: React.FC<Props> = ({className}) => {
       title: 'Jeste li sigurni da želite izbrisati radnu stavku?',
       text: 'Ovu radnju nije moguće poništiti!',
       icon: 'warning',
-      buttons: true,
+      buttons: [true],
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
