@@ -1,0 +1,13 @@
+.input {
+    position: relative;
+}
+
+.icons {
+    position: absolute;
+    right: 10px;
+    top:7px;
+
+    &:hover {
+        cursor: pointer;
+    }
+}

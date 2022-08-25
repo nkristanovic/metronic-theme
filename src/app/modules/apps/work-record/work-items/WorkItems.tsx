@@ -2,71 +2,114 @@ import {useFormik, yupToFormErrors} from 'formik'
 import {SetStateAction, useEffect, useState} from 'react'
 import * as Yup from 'yup'
 import classes from '../../../../../_metronic/assets/sass/errors.module.scss'
+import style from '../../../../../_metronic/assets/sass/icons.module.scss'
 import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import swal from 'sweetalert'
 import React from 'react'
-
+import {AiOutlineEye, AiOutlineEyeInvisible} from 'react-icons/ai'
+import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import DesktopDatePicker from '@mui/lab/DesktopDatePicker'
 type Props = {
   className: string
 }
 
 const WorkItems: React.FC<Props> = ({className}) => {
-  const [items, setItems] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [value, setValue] = useState('')
+  const [isVisible, setVisible] = useState(false)
+  const [isVisiblePassword, setVisiblePassword] = useState(false)
+  const [startDate, setStartDate] = React.useState(new Date('2014-08-18T21:11:54'))
 
-  function isEven(this: any, message: any) {
-    return this.test('isEven', message, (value: number) => {
-      if (value) {
-        return value % 2 == 0
-      }
-    })
+  const handleChange = (newValue: any) => {
+    setStartDate(newValue)
   }
 
-  Yup.addMethod(Yup.number, 'isEven', isEven)
+  // function isEven(this: any, message: any) {
+  //   return this.test('isEven', message, (value: number) => {
+  //     if (value) {
+  //       return value % 2 == 0
+  //     }
+  //   })
+  // }
+
+  // Yup.addMethod(Yup.number, 'isEven', isEven)
 
   const formik = useFormik({
     initialValues: {
       id: 1,
-      client: '',
-      oib: '',
-      project: '',
-      numberOfHours: '',
-      date: '',
-      notice: '',
+      username: '',
+      password: '',
+      passwordConfirmation: '',
+      email: '',
+      userType: '',
+      userStatus: '',
+      firstName: '',
+      lastName: '',
+      address: '',
+      city: '',
+      country: '',
+      telephone: '',
+      mobile: '',
+      dateOfBirth: '',
     },
     validationSchema: Yup.object().shape({
-      client: Yup.string().min(3, 'Minimum 3 symbols'),
-      oib: (Yup as any).number().isEven('Must be an evan number'),
-      project: Yup.string(),
-      numberOfHours: Yup.string(),
-      date: Yup.string(),
-      notice: Yup.string(),
+      username: Yup.string()
+        .required('Korisničko ime je obavezno polje')
+        .min(4, 'Minimalno 4 simbola')
+        .max(20, 'Maximalno 20 simbola'),
+      password: Yup.string()
+        .required('Lozinka je obavezno polje')
+        .lowercase('Minimalno 1 malo slovo')
+        .uppercase('Minimalno 1 veliko slovo')
+        .min(6, 'Minimalno 6 simbola')
+        .max(20, 'Maximalno 20 simbola'),
+      passwordConfirmation: Yup.string().test(
+        'password-match',
+        'Lozinka mora odgovarati',
+        function (value) {
+          return this.parent.password === value
+        }
+      ),
+      email: Yup.string().email('Pogrešna email adresa').required('Email je obavezno polje'),
+      userType: Yup.string().required('Tip korisnika je obavezno polje'),
+      userStatus: Yup.string().required('Status korisnika je obavezno polje'),
+      firstName: Yup.string().required('Ime je obavezno polje'),
+      lastName: Yup.string().required('Prezime je obavezno polje'),
+      city: Yup.string(),
+      address: Yup.string(),
+      country: Yup.string(),
+      telephone: Yup.string(),
+      mobile: Yup.string(),
+      dateOfBirth: Yup.date(),
     }),
     onSubmit: (values, {resetForm}) => {
-      setItems([...items, values])
+      setUsers([...users, values])
       resetForm()
     },
   })
 
-  useEffect(() => {
-    localStorage.setItem('items', JSON.stringify(items))
-  }, [items])
+  // useEffect(() => {
+  //   localStorage.setItem('users', JSON.stringify(users))
+  // }, [users])
 
   const deleteRow = (index: number) => {
     swal({
       title: 'Jeste li sigurni da želite izbrisati radnu stavku?',
       text: 'Ovu radnju nije moguće poništiti!',
       icon: 'warning',
-      buttons: [true],
+      buttons: ['cancel', true],
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
         swal('Vaša radna stavka je uspješno izbrisana!', {
           icon: 'success',
         })
-        const NewItems = [...items]
-        NewItems.splice(index, 1)
-        setItems(NewItems)
+        const NewUsers = [...users]
+        NewUsers.splice(index, 1)
+        setUsers(NewUsers)
       } else {
       }
     })
@@ -76,105 +119,215 @@ const WorkItems: React.FC<Props> = ({className}) => {
     setValue(e.target.value)
   }
 
-  const filteredItems = items.filter((events) => {
+  const filteredUsers = users.filter((events) => {
     return (
-      events.client.toLowerCase().includes(value.toLowerCase()) ||
-      events.project.toLowerCase().includes(value.toLowerCase()) ||
-      events.date.toLowerCase().includes(value.toLowerCase()) ||
-      events.numberOfHours.toLowerCase().includes(value.toLowerCase()) ||
-      events.notice.toLowerCase().includes(value.toLowerCase())
+      events.userType.toLowerCase().includes(value.toLowerCase()) ||
+      events.userStatus.toLowerCase().includes(value.toLowerCase()) ||
+      events.username.toLowerCase().includes(value.toLowerCase()) ||
+      events.email.toLowerCase().includes(value.toLowerCase())
     )
   })
+  const handlePassword = () => {
+    setVisible(!isVisible)
+  }
 
+  const handlePasswordConfirmation = () => {
+    setVisiblePassword(!isVisiblePassword)
+  }
   return (
     <>
       <form onSubmit={formik.handleSubmit} className='form w-100'>
         <div className='mb-10'>
-          <label className='form-label' htmlFor='client'>
-            Client
+          <label className='form-label required' htmlFor='username'>
+            Korisničko ime
           </label>
-          <input
-            type='text'
-            className='form-control'
-            placeholder='Client'
-            {...formik.getFieldProps('client')}
-          />
-          {formik.touched.client && formik.errors.client ? (
-            <div className={classes.error}>{formik.errors.client}</div>
+          <input type='text' className='form-control' {...formik.getFieldProps('username')} />
+          {formik.touched.username && formik.errors.username ? (
+            <div className={classes.error}>{formik.errors.username}</div>
           ) : null}
         </div>
 
         <div className='mb-10'>
-          <label className='form-label' htmlFor='oib'>
-            Oib
+          <label className='form-label required' htmlFor='password'>
+            Lozinka
           </label>
-          <input
-            type='number'
-            className='form-control'
-            placeholder='Oib'
-            {...formik.getFieldProps('oib')}
-          />
-          {formik.touched.oib && formik.errors.oib ? (
-            <div className={classes.error}>{formik.errors.oib}</div>
-          ) : null}
+          <div className={style.input}>
+            <input
+              type={!isVisible ? 'password' : 'text'}
+              className='form-control'
+              {...formik.getFieldProps('password')}
+            />
+            <span className={style.icons} onClick={handlePassword}>
+              {isVisible ? <AiOutlineEye size='30px' /> : <AiOutlineEyeInvisible size='30px' />}
+            </span>
+
+            {formik.touched.password && formik.errors.password ? (
+              <div className={classes.error}>{formik.errors.password}</div>
+            ) : null}
+          </div>
         </div>
 
         <div className='mb-10'>
-          <label className='form-label' htmlFor='project'>
-            Project
+          <label className='form-label required' htmlFor='passwordConfirmation'>
+            Ponovljena lozinka
           </label>
-          <input
-            type='text'
-            className='form-control'
-            placeholder='Project'
-            {...formik.getFieldProps('project')}
-          />
-          {formik.touched.project && formik.errors.project ? (
-            <div className={classes.error}>{formik.errors.project}</div>
+          <div className={style.input}>
+            <input
+              type={!isVisiblePassword ? 'password' : 'text'}
+              className='form-control'
+              {...formik.getFieldProps('passwordConfirmation')}
+            />
+            <span className={style.icons} onClick={handlePasswordConfirmation}>
+              {isVisiblePassword ? (
+                <AiOutlineEye size='30px' />
+              ) : (
+                <AiOutlineEyeInvisible size='30px' />
+              )}
+            </span>
+          </div>
+          {formik.touched.passwordConfirmation && formik.errors.passwordConfirmation ? (
+            <div className={classes.error}>{formik.errors.passwordConfirmation}</div>
           ) : null}
         </div>
         <div className='mb-10'>
-          <label className='form-label' htmlFor='numberOfHours'>
-            Number of hours
+          <label className='form-label required' htmlFor='email'>
+            E-mail
           </label>
-          <input type='time' className='form-control' {...formik.getFieldProps('numberOfHours')} />
-          {formik.touched.numberOfHours && formik.errors.numberOfHours ? (
-            <div className={classes.error}>{formik.errors.numberOfHours}</div>
+          <input type='email' className='form-control' {...formik.getFieldProps('email')} />
+          {formik.touched.email && formik.errors.email ? (
+            <div className={classes.error}>{formik.errors.email}</div>
           ) : null}
         </div>
         <div className='mb-10'>
-          <label className='form-label' htmlFor='date'>
-            Date
+          <label className='form-label required' htmlFor='userType'>
+            Tip korisnika
           </label>
-          <input type='date' className='form-control' {...formik.getFieldProps('date')} />
-          {formik.touched.date && formik.errors.date ? (
-            <div className={classes.error}>{formik.errors.date}</div>
+          <select
+            className='form-select form-select-solid form-select-lg fw-bold'
+            {...formik.getFieldProps('userType')}
+            placeholder='Odaberite vrijednost iz liste'
+          >
+            <option value=''>Odaberite vrijednost iz liste...</option>
+            <option value='Administrator'>Administrator</option>
+            <option value='Korisnik'>Korisnik</option>
+          </select>
+          {formik.touched.userType && formik.errors.userType ? (
+            <div className={classes.error}>{formik.errors.userType}</div>
           ) : null}
         </div>
         <div className='mb-10'>
-          <label className='form-label' htmlFor='notice'>
-            Notice
+          <label className='form-label required' htmlFor='userStatus'>
+            Status korisnika
           </label>
-          <input
-            type='text'
-            className='form-control'
-            placeholder=''
-            {...formik.getFieldProps('notice')}
-          />
-          {formik.touched.notice && formik.errors.notice ? (
-            <div className={classes.error}>{formik.errors.notice}</div>
+          <select
+            className='form-select form-select-solid form-select-lg fw-bold'
+            {...formik.getFieldProps('userStatus')}
+            placeholder='Odaberite vrijednost iz liste'
+          >
+            <option value=''>Odaberite vrijednost iz liste</option>
+            <option value='Aktivan'>Aktivan</option>
+            <option value='Neaktivan'>Neaktivan</option>
+            <option value='Suspendiran'>Suspendiran</option>
+          </select>
+          {formik.touched.userStatus && formik.errors.userStatus ? (
+            <div className={classes.error}>{formik.errors.userStatus}</div>
           ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label required' htmlFor='firstName'>
+            Ime
+          </label>
+          <input type='text' className='form-control' {...formik.getFieldProps('firstName')} />
+          {formik.touched.firstName && formik.errors.firstName ? (
+            <div className={classes.error}>{formik.errors.firstName}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label required' htmlFor='lastName'>
+            Prezime
+          </label>
+          <input type='text' className='form-control' {...formik.getFieldProps('lastName')} />
+          {formik.touched.lastName && formik.errors.lastName ? (
+            <div className={classes.error}>{formik.errors.lastName}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='address'>
+            Adresa
+          </label>
+          <input type='text' className='form-control' {...formik.getFieldProps('address')} />
+          {formik.touched.address && formik.errors.address ? (
+            <div className={classes.error}>{formik.errors.address}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='city'>
+            Grad
+          </label>
+          <input type='text' className='form-control' {...formik.getFieldProps('city')} />
+          {formik.touched.city && formik.errors.city ? (
+            <div className={classes.error}>{formik.errors.city}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='country'>
+            Država
+          </label>
+          <input type='text' className='form-control' {...formik.getFieldProps('country')} />
+          {formik.touched.country && formik.errors.country ? (
+            <div className={classes.error}>{formik.errors.country}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='telephone'>
+            Telefon
+          </label>
+          <input type='tel' className='form-control' {...formik.getFieldProps('telephone')} />
+          {formik.touched.telephone && formik.errors.telephone ? (
+            <div className={classes.error}>{formik.errors.telephone}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='mobile'>
+            Mobitel
+          </label>
+          <input type='tel' className='form-control' {...formik.getFieldProps('mobile')} />
+          {formik.touched.mobile && formik.errors.mobile ? (
+            <div className={classes.error}>{formik.errors.mobile}</div>
+          ) : null}
+        </div>
+        <div className='mb-10'>
+          <label className='form-label' htmlFor='dateOfBirth'>
+            Datum rođenja
+          </label>
+          <input type='date' className='form-control' {...formik.getFieldProps('dateOfBirth')} />
+          {formik.touched.dateOfBirth && formik.errors.dateOfBirth ? (
+            <div className={classes.error}>{formik.errors.dateOfBirth}</div>
+          ) : null}
+        </div>
+        <div>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Stack spacing={3}>
+            <DesktopDatePicker
+              label='Date desktop'
+              inputFormat='dd.mm.yyyy.'
+              value={value}
+              onChange={handleChange}
+              renderInput={(params: any) => <TextField {...params} />}
+            />
+          </Stack>
+        </LocalizationProvider>
         </div>
         <button type='submit' className='btn btn-primary'>
           Save
         </button>
       </form>
-      {items.length > 0 ? (
+      {users.length > 0 ? (
         <div className={`card ${className}`}>
           {/* begin::Header */}
           <div className='card-header border-0 pt-5'>
             <h3 className='card-title align-items-start flex-column'>
-              <span className='card-label fw-bold fs-3 mb-1'>Work items list</span>
+              <span className='card-label fw-bold fs-3 mb-1'>Popis korisnika</span>
             </h3>
             <div
               className='card-toolbar'
@@ -195,15 +348,14 @@ const WorkItems: React.FC<Props> = ({className}) => {
                 <thead>
                   <tr className='fw-bold text-muted'>
                     <th className='min-w-20px'>ID</th>
-                    <th className='min-w-90px'>Client</th>
-                    <th className='min-w-90px'>Project</th>
-                    <th className='min-w-90px'>Date</th>
-                    <th className='min-w-90px'>Number of hours</th>
-                    <th className='min-w-200px'>Notice</th>
+                    <th className='min-w-90px'>Tip korisnika</th>
+                    <th className='min-w-90px'>Status korisnika</th>
+                    <th className='min-w-90px'>Korisničko ime</th>
+                    <th className='min-w-90px'>E-mail</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredItems.map((item, index) => (
+                  {filteredUsers.map((user, index) => (
                     <tr key={index}>
                       <td>
                         <div className='d-flex align-items-center'>
@@ -218,29 +370,24 @@ const WorkItems: React.FC<Props> = ({className}) => {
                         <div className='d-flex align-items-center'>
                           <div className='d-flex justify-content-start flex-column'>
                             <a href='#' className='text-dark fw-bold text-hover-primary fs-6'>
-                              {item.client}
+                              {user.userType}
                             </a>
                           </div>
                         </div>
                       </td>
                       <td>
                         <a href='#' className='text-dark fw-bold text-hover-primary d-block fs-6'>
-                          {item.project}
+                          {user.userStatus}
                         </a>
                       </td>
                       <td>
                         <a href='#' className='text-dark fw-bold text-hover-primary d-block fs-6'>
-                          {item.numberOfHours}
+                          {user.username}
                         </a>
                       </td>
                       <td>
                         <a href='#' className='text-dark fw-bold text-hover-primary d-block fs-6'>
-                          {item.date}
-                        </a>
-                      </td>
-                      <td>
-                        <a href='#' className='text-dark fw-bold text-hover-primary d-block fs-6'>
-                          {item.notice}
+                          {user.email}
                         </a>
                       </td>
                       <td>
@@ -277,7 +424,7 @@ const WorkItems: React.FC<Props> = ({className}) => {
         <div className={`card ${className}`}>
           <div className='card-header margin border-0 pt-1'>
             <h3 className='card-title  flex-column'>
-              <span className='card-label fw-bold fs-3 mb-1'>There are no work items yet!</span>
+              <span className='card-label fw-bold fs-3 mb-1'>Nema korisnika u sustavu!</span>
             </h3>
           </div>
         </div>

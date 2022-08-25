@@ -5,10 +5,10 @@ import WorkItems from "./work-items/WorkItems";
 
 const recordsBreadCrumbs: Array<PageLink> = [
     {
-      title: 'Records',
+      title: 'Administracija-Postavke sustava',
       path: '/apps/work-records/work-items',
       isSeparator: false,
-      isActive: false,
+      isActive: true,
     },
     {
       title: '',
@@ -24,7 +24,7 @@ const WorkItemsRecord = () => {
             <Route element={<Outlet/>}>
                 <Route path="work-items" element={
                     <>
-                    <PageTitle breadcrumbs={recordsBreadCrumbs}>Work items</PageTitle>
+                    <PageTitle breadcrumbs={recordsBreadCrumbs}>Korisnici</PageTitle>
                     <WorkItems className={""} />
                     </>
                 }/>

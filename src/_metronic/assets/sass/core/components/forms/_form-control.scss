@@ -3,11 +3,16 @@
 //
 
 .form-control {
+	position: relative;
   	color: var(--kt-input-color);
   	background-color: var(--kt-input-bg);
 	border: $input-border-width solid var(--kt-input-border-color);
   	box-shadow: none !important;
 	//@include box-shadow(var(--kt-input-box-shadow));
+
+	&:icons{
+		position: relative
+	}
 
   	&:focus {
 		color: var(--kt-input-focus-color);
