@@ -1,3 +1,4 @@
+import React from 'react'
 import {useFormik, yupToFormErrors} from 'formik'
 import {SetStateAction, useEffect, useState} from 'react'
 import * as Yup from 'yup'
@@ -5,13 +6,9 @@ import classes from '../../../../../_metronic/assets/sass/errors.module.scss'
 import style from '../../../../../_metronic/assets/sass/icons.module.scss'
 import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import swal from 'sweetalert'
-import React from 'react'
 import {AiOutlineEye, AiOutlineEyeInvisible} from 'react-icons/ai'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import DesktopDatePicker from '@mui/lab/DesktopDatePicker'
+import clsx from 'clsx'
+
 type Props = {
   className: string
 }
@@ -66,13 +63,11 @@ const WorkItems: React.FC<Props> = ({className}) => {
         .uppercase('Minimalno 1 veliko slovo')
         .min(6, 'Minimalno 6 simbola')
         .max(20, 'Maximalno 20 simbola'),
-      passwordConfirmation: Yup.string().test(
-        'password-match',
-        'Lozinka mora odgovarati',
-        function (value) {
+      passwordConfirmation: Yup.string()
+        .test('password-match', 'Lozinka mora odgovarati', function (value) {
           return this.parent.password === value
-        }
-      ),
+        })
+        .required('Ponovljena lozinka je obavezno polje'),
       email: Yup.string().email('Pogrešna email adresa').required('Email je obavezno polje'),
       userType: Yup.string().required('Tip korisnika je obavezno polje'),
       userStatus: Yup.string().required('Status korisnika je obavezno polje'),
@@ -141,10 +136,20 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label required' htmlFor='username'>
             Korisničko ime
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('username')} />
-          {formik.touched.username && formik.errors.username ? (
+          <input
+            type='text'
+            {...formik.getFieldProps('username')}
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.username && formik.errors.username},
+              {
+                'is-valid': formik.touched.username && !formik.errors.username,
+              }
+            )}
+          />
+          {formik.touched.username && formik.errors.username && (
             <div className={classes.error}>{formik.errors.username}</div>
-          ) : null}
+          )}
         </div>
 
         <div className='mb-10'>
@@ -154,7 +159,13 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <div className={style.input}>
             <input
               type={!isVisible ? 'password' : 'text'}
-              className='form-control'
+              className={clsx(
+                'form-control',
+                {'is-invalid': formik.touched.password && formik.errors.password},
+                {
+                  'is-valid': formik.touched.password && !formik.errors.password,
+                }
+              )}
               {...formik.getFieldProps('password')}
             />
             <span className={style.icons} onClick={handlePassword}>
@@ -174,7 +185,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <div className={style.input}>
             <input
               type={!isVisiblePassword ? 'password' : 'text'}
-              className='form-control'
+              className={clsx(
+                'form-control',
+                {
+                  'is-invalid':
+                    formik.touched.passwordConfirmation && formik.errors.passwordConfirmation,
+                },
+                {
+                  'is-valid':
+                    formik.touched.passwordConfirmation && !formik.errors.passwordConfirmation,
+                }
+              )}
               {...formik.getFieldProps('passwordConfirmation')}
             />
             <span className={style.icons} onClick={handlePasswordConfirmation}>
@@ -193,7 +214,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label required' htmlFor='email'>
             E-mail
           </label>
-          <input type='email' className='form-control' {...formik.getFieldProps('email')} />
+          <input
+            type='email'
+            className={clsx(
+              'form-control ',
+              {'is-invalid': formik.touched.email && formik.errors.email},
+              {
+                'is-valid': formik.touched.email && !formik.errors.email,
+              }
+            )}
+            {...formik.getFieldProps('email')}
+          />
           {formik.touched.email && formik.errors.email ? (
             <div className={classes.error}>{formik.errors.email}</div>
           ) : null}
@@ -203,7 +234,14 @@ const WorkItems: React.FC<Props> = ({className}) => {
             Tip korisnika
           </label>
           <select
-            className='form-select form-select-solid form-select-lg fw-bold'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.userType && formik.errors.userType},
+              {
+                'is-valid': formik.touched.userType && !formik.errors.userType,
+              }
+            )}
+            aria-label='Select example'
             {...formik.getFieldProps('userType')}
             placeholder='Odaberite vrijednost iz liste'
           >
@@ -220,11 +258,18 @@ const WorkItems: React.FC<Props> = ({className}) => {
             Status korisnika
           </label>
           <select
-            className='form-select form-select-solid form-select-lg fw-bold'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.userStatus && formik.errors.userStatus},
+              {
+                'is-valid': formik.touched.userStatus && !formik.errors.userStatus,
+              }
+            )}
+            aria-label='Select example'
             {...formik.getFieldProps('userStatus')}
             placeholder='Odaberite vrijednost iz liste'
           >
-            <option value=''>Odaberite vrijednost iz liste</option>
+            <option value=''>Odaberite vrijednost iz liste...</option>
             <option value='Aktivan'>Aktivan</option>
             <option value='Neaktivan'>Neaktivan</option>
             <option value='Suspendiran'>Suspendiran</option>
@@ -237,7 +282,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label required' htmlFor='firstName'>
             Ime
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('firstName')} />
+          <input
+            type='text'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.firstName && formik.errors.firstName},
+              {
+                'is-valid': formik.touched.firstName && !formik.errors.firstName,
+              }
+            )}
+            {...formik.getFieldProps('firstName')}
+          />
           {formik.touched.firstName && formik.errors.firstName ? (
             <div className={classes.error}>{formik.errors.firstName}</div>
           ) : null}
@@ -246,7 +301,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label required' htmlFor='lastName'>
             Prezime
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('lastName')} />
+          <input
+            type='text'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.lastName && formik.errors.lastName},
+              {
+                'is-valid': formik.touched.lastName && !formik.errors.lastName,
+              }
+            )}
+            {...formik.getFieldProps('lastName')}
+          />
           {formik.touched.lastName && formik.errors.lastName ? (
             <div className={classes.error}>{formik.errors.lastName}</div>
           ) : null}
@@ -255,7 +320,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='address'>
             Adresa
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('address')} />
+          <input
+            type='text'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.address && formik.errors.address},
+              {
+                'is-valid': formik.touched.address && !formik.errors.address,
+              }
+            )}
+            {...formik.getFieldProps('address')}
+          />
           {formik.touched.address && formik.errors.address ? (
             <div className={classes.error}>{formik.errors.address}</div>
           ) : null}
@@ -264,7 +339,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='city'>
             Grad
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('city')} />
+          <input
+            type='text'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.city && formik.errors.city},
+              {
+                'is-valid': formik.touched.city && !formik.errors.city,
+              }
+            )}
+            {...formik.getFieldProps('city')}
+          />
           {formik.touched.city && formik.errors.city ? (
             <div className={classes.error}>{formik.errors.city}</div>
           ) : null}
@@ -273,7 +358,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='country'>
             Država
           </label>
-          <input type='text' className='form-control' {...formik.getFieldProps('country')} />
+          <input
+            type='text'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.country && formik.errors.country},
+              {
+                'is-valid': formik.touched.country && !formik.errors.country,
+              }
+            )}
+            {...formik.getFieldProps('country')}
+          />
           {formik.touched.country && formik.errors.country ? (
             <div className={classes.error}>{formik.errors.country}</div>
           ) : null}
@@ -282,7 +377,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='telephone'>
             Telefon
           </label>
-          <input type='tel' className='form-control' {...formik.getFieldProps('telephone')} />
+          <input
+            type='tel'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.telephone && formik.errors.telephone},
+              {
+                'is-valid': formik.touched.telephone && !formik.errors.telephone,
+              }
+            )}
+            {...formik.getFieldProps('telephone')}
+          />
           {formik.touched.telephone && formik.errors.telephone ? (
             <div className={classes.error}>{formik.errors.telephone}</div>
           ) : null}
@@ -291,7 +396,17 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='mobile'>
             Mobitel
           </label>
-          <input type='tel' className='form-control' {...formik.getFieldProps('mobile')} />
+          <input
+            type='tel'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.mobile && formik.errors.mobile},
+              {
+                'is-valid': formik.touched.mobile && !formik.errors.mobile,
+              }
+            )}
+            {...formik.getFieldProps('mobile')}
+          />
           {formik.touched.mobile && formik.errors.mobile ? (
             <div className={classes.error}>{formik.errors.mobile}</div>
           ) : null}
@@ -300,24 +415,22 @@ const WorkItems: React.FC<Props> = ({className}) => {
           <label className='form-label' htmlFor='dateOfBirth'>
             Datum rođenja
           </label>
-          <input type='date' className='form-control' {...formik.getFieldProps('dateOfBirth')} />
+          <input
+            type='date'
+            className={clsx(
+              'form-control',
+              {'is-invalid': formik.touched.dateOfBirth && formik.errors.dateOfBirth},
+              {
+                'is-valid': formik.touched.dateOfBirth && !formik.errors.dateOfBirth,
+              }
+            )}
+            {...formik.getFieldProps('dateOfBirth')}
+          />
           {formik.touched.dateOfBirth && formik.errors.dateOfBirth ? (
             <div className={classes.error}>{formik.errors.dateOfBirth}</div>
           ) : null}
         </div>
-        <div>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Stack spacing={3}>
-            <DesktopDatePicker
-              label='Date desktop'
-              inputFormat='dd.mm.yyyy.'
-              value={value}
-              onChange={handleChange}
-              renderInput={(params: any) => <TextField {...params} />}
-            />
-          </Stack>
-        </LocalizationProvider>
-        </div>
+
         <button type='submit' className='btn btn-primary'>
           Save
         </button>
